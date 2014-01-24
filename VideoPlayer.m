@@ -2,6 +2,7 @@ classdef VideoPlayer < handle
     
     properties (SetAccess = private)
         source
+        isPlaying
     end
     
     properties (Access = private)
@@ -18,18 +19,22 @@ classdef VideoPlayer < handle
         
         % Begins playing the current source.
         function play(obj)
-            if ~isempty(obj.start)
+            if obj.isPlaying
                 return;
             end
             
             obj.start = tic;
         end
         
+        function tf = get.isPlaying(obj)
+            tf = ~isempty(obj.start);
+        end
+        
         % Gets an image of the current video frame.
         function img = getImage(obj)
             img = [];
             
-            if isempty(obj.start)
+            if ~obj.isPlaying
                 return;
             end
             
