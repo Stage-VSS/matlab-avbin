@@ -38,13 +38,22 @@ classdef AvbinVideoReader < handle
         end
         
         function delete(obj)
-            avbin_close_stream(obj.stream);
-            avbin_close_file(obj.file);
+            if obj.stream
+                avbin_close_stream(obj.stream);
+            end
+            
+            if obj.file
+                avbin_close_file(obj.file);
+            end
+        end
+        
+        function seek(obj, timestamp)
+            avbin_seek_file(obj.file, timestamp);
         end
         
         function frame = nextFrame(obj)
             frame = [];
-            
+         
             try
                 packet = avbin_read(obj.file);
                 while packet.stream_index ~= obj.streamIndex
@@ -53,10 +62,16 @@ classdef AvbinVideoReader < handle
             catch
                 return;
             end
-                
-            data = avbin_decode_video(obj.stream, packet.data, obj.size(1), obj.size(2));
             
-            frame = permute(reshape(data, 3, obj.size(1), obj.size(2)), [3, 2, 1]);
+            while isempty(frame);
+                try
+                    data = avbin_decode_video(obj.stream, packet.data, obj.size(1), obj.size(2));
+                catch
+                    continue;
+                end
+            
+                frame = permute(reshape(data, 3, obj.size(1), obj.size(2)), [3, 2, 1]);
+            end
         end
         
     end
