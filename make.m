@@ -12,10 +12,6 @@ function make(rebuild)
     
     options = '';
     options = [options ' -L"' projectDir '" -lavbin'];
-%     
-%     if ismac
-%         options = [options ' LDFLAGS="\$LDFLAGS -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"'];
-%     end
     
     sourceFiles = dir(fullfile(projectDir, '*.c'));
     for i = 1:length(sourceFiles)

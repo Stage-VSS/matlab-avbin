@@ -504,7 +504,7 @@ AVbinInfo *avbin_get_info();
  *             This always returns 0 now that we use Libav from Git.  This
  *             function will be removed in AVbin 12.
  */
-int32_t avbin_get_ffmpeg_revision() __attribute__((deprecated));
+//int32_t avbin_get_ffmpeg_revision() __attribute__((deprecated));
 
 
 /**
