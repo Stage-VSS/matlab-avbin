@@ -29,4 +29,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     *((uint64_t *)mxGetData(fileAddr)) = (uint64_t)file;
     
     plhs[0] = fileAddr;
+    
+    mxFree(filename);
 }

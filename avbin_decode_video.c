@@ -26,7 +26,7 @@ uint8_t *toArray(mxArray *matrix)
     
     pointer = mxGetData(matrix);
     size = mxGetN(matrix);
-    array = malloc(size * sizeof(uint8_t));
+    array = mxMalloc(size * sizeof(uint8_t));
     
     for (i = 0; i < size; i++)
     {
@@ -58,19 +58,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     height = mxGetScalar(prhs[3]);
     
     size_in = mxGetN(prhs[1]) * sizeof(data_in[0]);
-    data_out = malloc(width * height * 3 * sizeof(uint8_t));
+    data_out = mxMalloc(width * height * 3 * sizeof(uint8_t));
     
     size_used = avbin_decode_video(stream, data_in, size_in, data_out);
     if (size_used == -1)
     {
-        free(data_in);
-        free(data_out);
+        mxFree(data_in);
+        mxFree(data_out);
         mexErrMsgIdAndTxt("avbin:failed", "An error occurred");        
         return;
     }
     
     plhs[0] = toMatrix(data_out, width * height * 3);
     
-    free(data_in);
-    free(data_out);
+    mxFree(data_in);
+    mxFree(data_out);
 }
