@@ -3,6 +3,7 @@
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+    AVbinOptions options;
     AVbinResult result;
     
     if (nrhs != 0)
@@ -11,7 +12,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
-    result = avbin_init();
+    options.structure_size = sizeof(options);
+    options.thread_count = 0;
+    
+    result = avbin_init_options(&options);
     if (result == AVBIN_RESULT_ERROR)
     {
         mexErrMsgIdAndTxt("avbin:failed", "An error occurred");        
