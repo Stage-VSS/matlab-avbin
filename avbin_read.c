@@ -27,10 +27,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
-    data = mxCreateNumericMatrix(0, 0, mxUINT8_CLASS, mxREAL);
-    mxSetPr(data, packet.data);
-    mxSetM(data, packet.size);
-    mxSetN(data, 1);
+    data = mxCreateNumericMatrix(1, packet.size, mxUINT8_CLASS, mxREAL);
+    memcpy(mxGetPr(data), packet.data, packet.size * mxGetElementSize(data));
     
     packetStruct = mxCreateStructMatrix(1, 1, sizeof(fieldNames) / sizeof(fieldNames[0]), fieldNames);
     mxSetField(packetStruct, 0, "timestamp", mxCreateDoubleScalar(packet.timestamp));
