@@ -1,27 +1,12 @@
 #include <mex.h>
 #include "avbin.h"
 
-mxArray* toMatrix(uint8_t *array, size_t size)
-{
-    mxArray *matrix;
-    uint8_t *pointer;
-    mwSize i;
-    
-    matrix = mxCreateNumericMatrix(1, size, mxUINT8_CLASS, mxREAL);
-    pointer = mxGetData(matrix);
-    for (i = 0; i < size; i++)
-    {
-        pointer[i] = array[i];
-    }
-    
-    return matrix;
-}
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     AVbinFile *file;
     AVbinPacket packet;
     AVbinResult result;
+    mxArray *data;
     const char *fieldNames[] = {"timestamp", "stream_index", "data", "size"};
     mxArray *packetStruct;
     
@@ -42,10 +27,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
     
+    data = mxCreateNumericMatrix(0, 0, mxUINT8_CLASS, mxREAL);
+    mxSetPr(data, packet.data);
+    mxSetM(data, packet.size);
+    mxSetN(data, 1);
+    
     packetStruct = mxCreateStructMatrix(1, 1, sizeof(fieldNames) / sizeof(fieldNames[0]), fieldNames);
     mxSetField(packetStruct, 0, "timestamp", mxCreateDoubleScalar(packet.timestamp));
     mxSetField(packetStruct, 0, "stream_index", mxCreateDoubleScalar(packet.stream_index));
-    mxSetField(packetStruct, 0, "data", toMatrix(packet.data, packet.size));
+    mxSetField(packetStruct, 0, "data", data);
     mxSetField(packetStruct, 0, "size", mxCreateDoubleScalar(packet.size));
     
     plhs[0] = packetStruct;
