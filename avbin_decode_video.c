@@ -34,7 +34,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
     
     plhs[0] = mxCreateNumericMatrix(0, 0, mxUINT8_CLASS, mxREAL);
-    mxSetPr(plhs[0], data_out);
+    mxSetData(plhs[0], data_out);
     mxSetM(plhs[0], width * height * 3);
     mxSetN(plhs[0], 1);
 }
