@@ -1,12 +1,14 @@
 classdef VideoPlayer < handle
     
     properties (SetAccess = private)
-        source
         isPlaying
     end
     
     properties (Access = private)
+        source
         start
+        playPosition
+        frameByFrame
         previousImage
     end
     
@@ -14,32 +16,42 @@ classdef VideoPlayer < handle
         
         function obj = VideoPlayer(source)
             obj.source = source;
+            obj.isPlaying = false;
             obj.previousImage = {[], []};
         end
         
         % Begins playing the current source.
-        function play(obj)
+        function play(obj, frameByFrame)
             if obj.isPlaying
-                return;
+                error('Player is already playing');
             end
             
+            if nargin < 2
+                frameByFrame = false;
+            end
+            
+            obj.frameByFrame = frameByFrame;
             obj.start = tic;
+            obj.isPlaying = true;
         end
         
-        function tf = get.isPlaying(obj)
-            tf = ~isempty(obj.start);
-        end
-        
-        % Gets an image of the current video frame.
-        function img = getImage(obj)
-            img = [];
-            
+        function p = get.playPosition(obj)
             if ~obj.isPlaying
+                p = 0;
                 return;
             end
             
-            position = toc(obj.start) * 1e6;
-            if ~isempty(obj.previousImage{2}) && position <= obj.previousImage{2}
+            if obj.frameByFrame
+                p = obj.source.nextTimestamp();
+            else
+                p = toc(obj.start) * 1e6;
+            end
+        end
+        
+        % Gets an image of the video frame at the current play position.
+        function img = getImage(obj)
+            position = obj.playPosition;
+            if ~isempty(position) && ~isempty(obj.previousImage{2}) && position <= obj.previousImage{2}
                 img = obj.previousImage{1};
                 return;
             end
