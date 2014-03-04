@@ -82,11 +82,14 @@ classdef VideoSource < handle
             [img, timestamp] = obj.readAndDecodeNextImage();
         end
         
-        function timestamp = nextTimestamp(obj)
+        function timestamp = nextTimestamp(obj)            
             if obj.buffer.count > 0
                 [~, timestamp] = obj.buffer.peek();
-            else
-                [img, timestamp] = obj.nextImage();
+                return;
+            end
+            
+            [img, timestamp] = obj.readAndDecodeNextImage();
+            if ~isempty(img)
                 obj.buffer.add(img, timestamp);
             end
         end
