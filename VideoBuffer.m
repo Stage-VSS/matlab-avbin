@@ -5,23 +5,32 @@ classdef VideoBuffer < handle
     end
     
     properties (Access = private)
+        head
+        tail
         images
         timestamps
     end
     
     methods
         
+        function obj = VideoBuffer()
+            obj.head = 1;
+            obj.tail = 1;
+        end
+        
         function c = get.count(obj)
-            c = length(obj.timestamps);
+            c = obj.tail - obj.head;
         end
         
         function add(obj, img, timestamp)
             if isempty(obj.images)
                 obj.images = img;
             else
-                obj.images(:, :, :, end + 1) = img;
+                obj.images(:, :, :, obj.tail) = img;
             end
-            obj.timestamps(end + 1) = timestamp;
+            obj.timestamps(obj.tail) = timestamp;
+            
+            obj.tail = obj.tail + 1;
         end
         
         function [img, timestamp] = peek(obj)
@@ -29,18 +38,19 @@ classdef VideoBuffer < handle
                 error('Buffer empty');
             end
             
-            img = obj.images(:, :, :, 1);
-            timestamp = obj.timestamps(1);
+            img = obj.images(:, :, :, obj.head);
+            timestamp = obj.timestamps(obj.head);
         end
         
         function [img, timestamp] = remove(obj)
             [img, timestamp] = obj.peek();
             
-            obj.images(:, :, :, 1) = [];
-            obj.timestamps(1) = [];
+            obj.head = obj.head + 1;
         end
         
         function clear(obj)
+            obj.head = 1;
+            obj.tail = 1;
             obj.images = [];
             obj.timestamps = [];
         end
