@@ -21,4 +21,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mexErrMsgIdAndTxt("avbin:failed", "An error occurred");        
         return;
     }
+    
+    // Lock this function in memory to prevent a call to "clear all" from crashing Matlab.
+    mexLock();
 }
