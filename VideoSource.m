@@ -9,7 +9,7 @@ classdef VideoSource < handle
         file
         streamIndex
         stream
-        bufferedImage
+        buffer
     end
     
     methods
@@ -38,6 +38,8 @@ classdef VideoSource < handle
             obj.stream = avbin_open_stream(obj.file, obj.streamIndex);
             obj.size = [streamInfo.width, streamInfo.height];
             obj.duration = fileInfo.duration;
+            
+            obj.buffer = VideoBuffer();
         end
         
         function delete(obj)
@@ -52,7 +54,16 @@ classdef VideoSource < handle
         
         function seek(obj, timestamp)
             avbin_seek_file(obj.file, timestamp);
-            obj.bufferedImage = {};
+            obj.buffer.clear();
+        end
+        
+        % Loads all remaining video data into RAM.
+        function preload(obj)
+            [img, timestamp] = obj.readAndDecodeNextImage();
+            while ~isempty(img)
+                obj.buffer.add(img, timestamp);
+                [img, timestamp] = obj.readAndDecodeNextImage();
+            end
         end
         
         function [img, timestamp] = getImage(obj, time)
@@ -63,15 +74,30 @@ classdef VideoSource < handle
         end
         
         function [img, timestamp] = nextImage(obj)
-            img = [];
-            timestamp = [];
-            
-            if ~isempty(obj.bufferedImage)
-                img = obj.bufferedImage{1};
-                timestamp = obj.bufferedImage{2};
-                obj.bufferedImage = {};
+            if obj.buffer.count > 0
+                [img, timestamp] = obj.buffer.remove();
                 return;
             end
+            
+            [img, timestamp] = obj.readAndDecodeNextImage();
+        end
+        
+        function timestamp = nextTimestamp(obj)
+            if obj.buffer.count > 0
+                [~, timestamp] = obj.buffer.peek();
+            else
+                [img, timestamp] = obj.nextImage();
+                obj.buffer.add(img, timestamp);
+            end
+        end
+        
+    end
+    
+    methods (Access = private)
+        
+        function [img, timestamp] = readAndDecodeNextImage(obj)
+            img = [];
+            timestamp = [];
             
             try
                 packet = avbin_read(obj.file);
@@ -91,15 +117,6 @@ classdef VideoSource < handle
             
                 img = permute(reshape(data, 3, obj.size(1), obj.size(2)), [3, 2, 1]);
                 timestamp = packet.timestamp;
-            end
-        end
-        
-        function timestamp = nextTimestamp(obj)
-            if ~isempty(obj.bufferedImage)
-                timestamp = obj.bufferedImage{2};
-            else
-                [img, timestamp] = obj.nextImage();
-                obj.bufferedImage = {img, timestamp};
             end
         end
         
