@@ -1,5 +1,9 @@
 classdef VideoPlayer < handle
     
+    properties
+        playbackSpeed = PlaybackSpeed.NORMAL
+    end
+    
     properties (SetAccess = private)
         isPlaying
     end
@@ -8,7 +12,6 @@ classdef VideoPlayer < handle
         source
         start
         playPosition
-        frameByFrame
         previousImage
     end
     
@@ -21,16 +24,11 @@ classdef VideoPlayer < handle
         end
         
         % Begins playing the current source.
-        function play(obj, frameByFrame)
+        function play(obj)
             if obj.isPlaying
                 error('Player is already playing');
             end
             
-            if nargin < 2
-                frameByFrame = false;
-            end
-            
-            obj.frameByFrame = frameByFrame;
             obj.start = tic;
             obj.isPlaying = true;
         end
@@ -41,10 +39,10 @@ classdef VideoPlayer < handle
                 return;
             end
             
-            if obj.frameByFrame
+            if obj.playbackSpeed == PlaybackSpeed.FRAME_BY_FRAME
                 p = obj.source.nextTimestamp();
             else
-                p = toc(obj.start) * 1e6;
+                p = toc(obj.start) * 1e6 * obj.playbackSpeed;
             end
         end
         
