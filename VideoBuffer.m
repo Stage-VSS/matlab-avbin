@@ -14,16 +14,12 @@ classdef VideoBuffer < handle
     
     methods
         
-        function obj = VideoBuffer(size, capacity)
-            if nargin < 2
-                capacity = 10;
-            end
-            
+        function obj = VideoBuffer()
             obj.head = 1;
             obj.tail = 1;
             obj.growFactor = 4;
             
-            obj.images = zeros(size(2), size(1), 3, capacity, 'uint8');
+            obj.images = {};
         end
         
         function c = get.count(obj)
@@ -31,15 +27,7 @@ classdef VideoBuffer < handle
         end
         
         function add(obj, img, timestamp)
-            capacity = size(obj.images, 4);
-            if capacity == obj.tail
-                newCapacity = size(obj.images, 4) * obj.growFactor;
-                temp = zeros(size(obj.images, 1), size(obj.images, 2), size(obj.images, 3), newCapacity, class(obj.images));
-                temp(:,:,:,1:capacity) = obj.images(:,:,:,1:capacity);
-                obj.images = temp;
-            end
-            
-            obj.images(:,:,:,obj.tail) = img;
+            obj.images{obj.tail} = img;
             obj.timestamps(obj.tail) = timestamp;
             
             obj.tail = obj.tail + 1;
@@ -50,7 +38,7 @@ classdef VideoBuffer < handle
                 error('Buffer empty');
             end
             
-            img = obj.images(:,:,:,obj.head);
+            img = obj.images{obj.head};
             timestamp = obj.timestamps(obj.head);
         end
         

@@ -39,7 +39,7 @@ classdef VideoSource < handle
             obj.size = [streamInfo.width, streamInfo.height];
             obj.duration = fileInfo.duration;
             
-            obj.buffer = VideoBuffer(obj.size);
+            obj.buffer = VideoBuffer();
         end
         
         function delete(obj)
