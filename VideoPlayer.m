@@ -23,8 +23,9 @@ classdef VideoPlayer < handle
             obj.previousImage = {[], []};
         end
         
-        % Begins playing the current source.
         function play(obj)
+            % Begins playing the current source.
+            
             if obj.isPlaying
                 error('Player is already playing');
             end
@@ -46,8 +47,9 @@ classdef VideoPlayer < handle
             end
         end
         
-        % Gets an image of the video frame at the current play position.
         function img = getImage(obj)
+            % Gets an image of the video frame at the current play position.
+            
             position = obj.playPosition;
             if ~isempty(position) && ~isempty(obj.previousImage{2}) && position <= obj.previousImage{2}
                 img = obj.previousImage{1};
