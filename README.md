@@ -1,6 +1,6 @@
 # matlab-avbin
 
-[AVBin](http://avbin.github.io/AVbin/Home/Home.html) bindings for Matlab.
+[AVBin](http://avbin.github.io/AVbin/Home/Home.html) bindings for MATLAB.
 
 ## Requirements
 
